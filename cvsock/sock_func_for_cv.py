@@ -3,9 +3,19 @@ import socket as sc
 import numpy as np
 import time
 
+def imgencode(img,quality=5):
+    param = [int(cv2.IMWRITE_JPEG_QUALITY),quality]
+    result,encimg = cv2.imencode(".jpg",img,param)
+    return encimg
+
+
+
+
+
 def sendimg(sock,img):
     totalsend = 0
     nn = 0
+    img = imgencode(img,25)
     sendsize = img.size
     img = img.tostring()
     while totalsend < sendsize:
@@ -16,8 +26,6 @@ def sendimg(sock,img):
         time.sleep(0.5)
     return 
 
-
-
 def recvimg(sock,size):
     total = 0
     img = bytes()
@@ -27,7 +35,7 @@ def recvimg(sock,size):
         total = total + len(data)
         print(total,"/",size)
     img = np.fromstring(img,dtype=np.uint8)
-    img = np.reshape(img,(340,509,3))
+    img = np.reshape(img,(480,640,3))
     return img
 
 def socket_set_up(ip,port):
@@ -45,8 +53,6 @@ def connect(ip,port):
     print("接続完了")
     return sock
 
-
-
 def getimg():
     while True:
         imgname = input("送信したい画像名を入力してください:")
@@ -58,10 +64,13 @@ def getimg():
             break
     return img
 
-def getwebcamimg():
-    cam = cv2.VideoCapture(0)
-    if not cam:
+def getwebcamimg(cam):
+    if cam is None:
         print("can not open webcam!!")
-    flag,img = cam.read()
-    return img
+    flag,frame = cam.read()
+    return frame
+
+
+
+
 
