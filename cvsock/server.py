@@ -4,7 +4,7 @@ import sock_func_for_cv as scv
 import time
 def main():
     cap = cv2.VideoCapture(0)
-    with scv.socket_set_up("172.16.10.104",55000) as sock:
+    with scv.socket_set_up("172.16.10.104",55001) as sock:
         #cv2.namedWindow("server", cv2.WINDOW_NORMAL)
         #img = scv.getimg()
         while(cv2.waitKey() != "q"):
