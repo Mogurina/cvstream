@@ -16,13 +16,18 @@ def sendimg(sock,img):
     """画像を送信する関数"""
     totalsend = 0#送信した画像データ量が格納される
     funcnum = 0#何回送信したか記録する
-    img = imgencode(img,25)#画像圧縮
+    img = imgencode(img,20)#画像圧縮
     data= [img.size]#numpyで扱いやすくするためにいったんリストに格納している
     senddata = np.array(data + list(img.shape))#numpyで画像データを格納したリストを生成する
     print("送信画像データ:",senddata)#画像データの表示
     senddata = senddata.tostring()#画像データの入ったリストをバイナリに変換
     img = img.tostring()#画像をバイナリに変換
-    n = sock.send(senddata)#送信予定の画像情報を先に送信する
+    senddatasize = len(senddata)
+    print("送信画像データサイズ:",senddatasize)#画像データの表示
+    while totalsend < senddatasize:
+        n = sock.send(senddata)#送信予定の画像情報を先に送信する
+        totalsend += n
+    totalsend = 0
     while totalsend < data[0]:#画像データをすべて送信できるまでループする
         n = sock.send(img[totalsend:])#最後に送信されたデータの一から送信する
         totalsend += n#送信したデータ量分加算する
@@ -34,12 +39,17 @@ def sendimg(sock,img):
 
 def recvimg(sock):
     """画像を受け取る関数"""
-    recvdata = sock.recv(49)#事前に送られてくる画像についてのデータを受け取る
+    total = 0
+    recvdatasize = 12
+    recvdata = bytes()
+    while total < recvdatasize:
+        buff = sock.recv(recvdatasize-total)#事前に送られてくる画像についてのデータを受け取る
+        recvdata += buff
+        total += len(buff)
+        print("画像詳細データダウンロード:",total,"/",recvdatasize)
+    total = 0
     recvdata = np.fromstring(recvdata,dtype=np.int32)#バイナリで受け取ったデータを変換
-    print("受信画像データ:",recvdata)
-    if recvdata is None:
-        print("受信失敗")
-        return False
+    print("受信画像詳細データ:",recvdata)
     size = recvdata[0]#画像データのサイズを格納
     shape = tuple(num for num in recvdata[1:])#画像データの形を格納
     total = 0#受け取ったデータ量を格納
@@ -48,7 +58,7 @@ def recvimg(sock):
         data = sock.recv(size-total)#すでに受け取ってあるデータ量分減算して受け取る
         img += data#受け取ったバイナリデータの加算
         total = total + len(data)#受け取ったデータ量分加算
-        print(total,"/",size)
+        print("画像データダウンロード",total,"/",size)
     img = np.fromstring(img,dtype=np.uint8)#画像バイナリデータの変換
     img = np.reshape(img,shape)#画像の型に合わせて数値変換
     img = cv2.imdecode(img,1)#画像のデコード
