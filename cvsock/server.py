@@ -6,7 +6,7 @@ def main():
     print("webカメラのセットアップ中")
     cap = cv2.VideoCapture(0)
     if cap is None:
-        ("セットアップ失敗")
+        print("セットアップ失敗")
     print("セットアップ完了")
     with scv.socket_set_up("172.16.10.104",55002) as sock:
         #cv2.namedWindow("server", cv2.WINDOW_NORMAL)
