@@ -11,7 +11,7 @@ def sendimg(sock,img):
     """画像を送信する関数"""
     totalsend = 0#送信した画像データ量が格納される
     funcnum = 0#何回送信したか記録する
-    img = cvf.imgencode(img,100)#画像圧縮
+    img = cvf.imgencode(img,80)#画像圧縮
     data= [img.size]#numpyで扱いやすくするためにいったんリストに格納している
     senddata = np.array(data + list(img.shape))#numpyで画像データを格納したリストを生成する
     print("送信画像データ:",senddata)#画像データの表示
@@ -45,6 +45,9 @@ def recvimg(sock):
         total += len(buff)
         funcnum += 1
         print("画像詳細データダウンロード:",total,"/",recvdatasize,funcnum)
+        if funcnum > 1000:
+            print("受け取り失敗")
+            return False
     total = 0
     funcnum = 0
     recvdata = np.fromstring(recvdata,dtype=np.int32)#バイナリで受け取ったデータを変換
@@ -80,5 +83,3 @@ def connect(ip,port):#ipアドレスとポート番号を受け取る
     sock.connect((ip,port))
     print("接続完了")
     return sock
-
-

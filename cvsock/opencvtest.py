@@ -7,6 +7,8 @@ while True:
     ret, frame = cap.read()
     # フレームを表示する   
     frame = cvf.persondetection(frame)
+    frame = cvf.persondetection(frame)
+    frame = cvf.facedetection(frame)
     cvf.imshow_fullscreen('camera capture', frame)
     print(frame.shape)
     k = cv2.waitKey(1) # 1msec待つ

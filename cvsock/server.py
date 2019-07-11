@@ -1,6 +1,7 @@
 import cv2
 import sock_func_for_cv as scv
 import cvfunc as cvf
+import numpy as np
 def main():
     #frame = scv.getimg()
     print("webカメラのセットアップ中")
@@ -14,14 +15,16 @@ def main():
             flag,frame = cap.read()
             print("image data:",frame.shape)
             frame = cvf.persondetection(frame)
-            cv2.imshow("server",frame)
+            frame = cvf.facedetection(frame)
+            #frame = cvf.pointdetection(frame)
+            #frame = cv2.bilateralFilter(frame,9,75,75)
+            #cv2.imshow("server",frame)
             scv.sendimg(sock,frame)
             k = cv2.waitKey(1) # 1msec待つ
             if k == 27: # ESCキーで終了
                 break
             
     cv2.destroyAllWindows()           
-
 
 if __name__ == "__main__":
     main()

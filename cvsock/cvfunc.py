@@ -1,5 +1,8 @@
 import cv2
+import numpy as np
 
+#HAAR分類器の顔検出用の特徴量
+cascade_path = "C:\opencv\sources\data\haarcascades\haarcascade_frontalface_alt.xml"
 
 def getimg():
     """画像取得関数"""
@@ -33,9 +36,60 @@ def persondetection(img):
 
     # 人の領域を赤色の矩形で囲む
     for (x, y, w, h) in human:
-        cv2.rectangle(img, (x, y), (x + w, y+h), (0,0,200), 3)
+        #cv2.rectangle(img, (x, y), (x + w, y+h), (0,0,200), 3)
         cv2.putText(img, 'person', (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), thickness=2)
+        img = mosaic_area(img,x,y,w,h,0.1)
     return img
+
+def facedetection(image):
+    #グレースケール変換
+    image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    #カスケード分類器の特徴量を取得する
+    cascade = cv2.CascadeClassifier(cascade_path)
+
+    #物体認識（顔認識）の実行
+    #image – CV_8U 型の行列．ここに格納されている画像中から物体が検出されます
+    #objects – 矩形を要素とするベクトル．それぞれの矩形は，検出した物体を含みます
+    #scaleFactor – 各画像スケールにおける縮小量を表します
+    #minNeighbors – 物体候補となる矩形は，最低でもこの数だけの近傍矩形を含む必要があります
+    #flags – このパラメータは，新しいカスケードでは利用されません．古いカスケードに対しては，cvHaarDetectObjects 関数の場合と同じ意味を持ちます
+    #minSize – 物体が取り得る最小サイズ．これよりも小さい物体は無視されます
+    facerect = cascade.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=1, minSize=(1, 1))
+    #facerect = cascade.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=3, minSize=(10, 10), flags = cv2.cv.CV_HAAR_SCALE_IMAGE)
+
+
+    if len(facerect) > 0:
+        #検出した顔を囲む矩形の作成
+        #for rect in facerect:
+        #    cv2.rectangle(image, tuple(rect[0:2]),tuple(rect[0:2]+rect[2:4]), (255,0,0), thickness=2)
+
+        for x, y, w, h in facerect:
+            image = mosaic_area(image, x, y, w, h,0.1)
+
+    return image
+
+
+
+def pointdetection(img):
+    # ORB (Oriented FAST and Rotated BRIEF)
+    detector = cv2.ORB_create()
+
+    # 特徴検出
+    keypoints = detector.detect(img)
+
+    # 画像への特徴点の書き込み
+    out = cv2.drawKeypoints(img, keypoints, None)
+    return out
+
+def mosaic(src, ratio=0.1):
+    small = cv2.resize(src, None, fx=ratio, fy=ratio, interpolation=cv2.INTER_NEAREST)
+    return cv2.resize(small, src.shape[:2][::-1], interpolation=cv2.INTER_NEAREST)
+
+def mosaic_area(src, x, y, width, height, ratio=0.1):
+    dst = src.copy()
+    dst[y:y + height, x:x + width] = mosaic(dst[y:y + height, x:x + width], ratio)
+    return dst
 
 def imshow_fullscreen(winname, img):
     cv2.namedWindow(winname, cv2.WINDOW_NORMAL)
