@@ -11,7 +11,7 @@ def sendimg(sock,img):
     """画像を送信する関数"""
     totalsend = 0#送信した画像データ量が格納される
     funcnum = 0#何回送信したか記録する
-    img = cvf.imgencode(img,80)#画像圧縮
+    img = cvf.imgencode(img,50)#画像圧縮
     data= [img.size]#numpyで扱いやすくするためにいったんリストに格納している
     senddata = np.array(data + list(img.shape))#numpyで画像データを格納したリストを生成する
     print("送信画像データ:",senddata)#画像データの表示
