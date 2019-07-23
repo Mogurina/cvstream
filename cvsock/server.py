@@ -3,11 +3,11 @@ import sock_func_for_cv as scv
 import cvfunc as cvf
 import numpy as np
 import pyaudio
-import audio_sock_func as asc
+
 
 def main():
 
-    CHUNK=1024
+    CHUNK=2048
     RATE=44100
 
     #frame = scv.getimg()
@@ -35,7 +35,7 @@ def main():
             input = stream.read(CHUNK)
 
             scv.sendimg(sock,frame)
-            asc.sendaudio(sock,input)
+            scv.sendf(sock,input)
             k = cv2.waitKey(1) # 1msec待つ
             if k == 27: # ESCキーで終了
                 break
